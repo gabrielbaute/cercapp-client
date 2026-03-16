@@ -16,7 +16,7 @@ export default function useMyIncidences() {
 
   const filteredIncidences = computed(() => {
     if (currentFilter.value === 'ACTIVE') {
-      return incidences.value.filter(i => i.status !== 'CANCELLED' && i.status !== 'RESOLVED');
+      return incidences.value.filter(i => i.status !== 'CANCELED' && i.status !== 'RESOLVED');
     }
     if (currentFilter.value === 'ALL') {
       return incidences.value;
