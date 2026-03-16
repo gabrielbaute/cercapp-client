@@ -31,7 +31,7 @@ export default defineComponent({
         labels: Object.keys(grouped),
         datasets: [{
           label: 'Monto Acumulado ($)',
-          data: Object.values(grouped),
+          data: Object.values(grouped).map(v => Number(v)) as number[],
           borderColor: '#1e293b', // cercapp-navy
           backgroundColor: 'rgba(30, 41, 59, 0.1)',
           fill: true,
