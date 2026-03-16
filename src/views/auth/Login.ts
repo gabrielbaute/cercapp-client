@@ -1,0 +1,46 @@
+import { ref } from 'vue';
+import { useRouter } from 'vue-router';
+import { useAuthStore } from '../../store/auth.store';
+
+export function useLogin() {
+  const authStore = useAuthStore();
+  const router = useRouter();
+
+  // Variables reactivas (Estado local de la pantalla)
+  const email = ref('');
+  const password = ref('');
+  const isLoading = ref(false);
+  const errorMessage = ref('');
+
+  const submitLogin = async () => {
+    // Validación básica de UI
+    if (!email.value || !password.value) {
+      errorMessage.value = 'Por favor, completa todos los campos.';
+      return;
+    }
+
+    isLoading.value = true;
+    errorMessage.value = '';
+
+    try {
+      // Llamamos a la acción del store (que a su vez llama a la API)
+      await authStore.login({ email: email.value, password: password.value });
+      
+      // Si fue exitoso, el router nos lleva al dashboard
+      router.push({ name: 'Dashboard' });
+    } catch (error: any) {
+      console.error("Error en login:", error);
+      errorMessage.value = 'Credenciales inválidas o error de conexión.';
+    } finally {
+      isLoading.value = false;
+    }
+  };
+
+  return {
+    email,
+    password,
+    isLoading,
+    errorMessage,
+    submitLogin
+  };
+}
