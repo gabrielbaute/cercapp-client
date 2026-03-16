@@ -12,7 +12,7 @@ export default defineComponent({
     isLoading: { type: Boolean, default: false }
   },
   emits: ['confirm', 'close'],
-  setup(props, { emit }) {
+  setup( _ , { emit }) {
     return {
       onConfirm: () => emit('confirm'),
       onClose: () => emit('close')
