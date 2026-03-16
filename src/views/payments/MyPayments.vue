@@ -2,10 +2,11 @@
 import { defineComponent } from 'vue';
 import useMyPayments from './MyPayments';
 import PaymentListItem from '../../components/payments/PaymentListItem.vue';
+import ConfirmModal from '../../components/common/ConfirmModal.vue'; // Nuestro modal reutilizable
 
 export default defineComponent({
   name: 'MyPaymentsView',
-  components: { PaymentListItem },
+  components: { PaymentListItem, ConfirmModal },
   setup() {
     return { ...useMyPayments() };
   }
@@ -16,7 +17,7 @@ export default defineComponent({
   <div class="space-y-6 max-w-4xl mx-auto">
     
     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-      <div>
+      <div class="text-left">
         <h1 class="text-2xl font-bold text-cercapp-navy">Mis Pagos</h1>
         <p class="text-gray-500 mt-1">Historial de aportes a tus planes de inversión.</p>
       </div>
@@ -30,7 +31,7 @@ export default defineComponent({
       <label class="text-sm font-bold text-cercapp-navy shrink-0">Filtrar por estado:</label>
       <select 
         v-model="currentFilter" 
-        class="bg-gray-50 border border-gray-200 text-gray-700 text-sm rounded-lg focus:ring-cercapp-gold focus:border-cercapp-gold block w-full sm:w-auto p-2 outline-none"
+        class="bg-gray-50 border border-gray-200 text-gray-700 text-sm rounded-lg focus:ring-cercapp-gold focus:border-cercapp-gold block w-full sm:w-auto p-2 outline-none font-medium"
       >
         <option value="ACTIVE">Activos (Ocultar Cancelados)</option>
         <option value="ALL">Todos los pagos</option>
@@ -63,17 +64,27 @@ export default defineComponent({
           
           <template #actions v-if="payment.status === 'PENDING'">
             <button 
-              @click="cancelPayment(payment.id)"
-              class="ml-3 px-3 py-1 text-xs font-semibold text-red-600 bg-red-50 hover:bg-red-100 border border-red-200 rounded transition-colors"
+              @click="confirmCancelPayment(payment.id)"
+              class="ml-3 px-3 py-1.5 text-xs font-bold text-red-600 bg-red-50 hover:bg-red-100 border border-red-200 rounded-lg transition-colors shadow-sm"
               title="Anular pago por error"
             >
-              Anular
+              Anular Pago
             </button>
           </template>
 
         </PaymentListItem>
       </div>
     </div>
+
+    <ConfirmModal 
+      :show="modal.show" 
+      :title="modal.title" 
+      :message="modal.message" 
+      :type="modal.type"
+      :isLoading="isActionLoading"
+      @confirm="executeCancelPayment"
+      @close="modal.show = false"
+    />
 
   </div>
 </template>
