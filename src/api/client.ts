@@ -2,7 +2,8 @@ import createClient from "openapi-fetch";
 import type { paths } from "./v1/schema";
 
 const client = createClient<paths>({
-  baseUrl: "http://localhost:8009", // Cambia esto según tu entorno
+  // Vite reemplazará esto en tiempo de compilación por la URL correspondiente
+  baseUrl: import.meta.env.VITE_API_BASE_URL,
 });
 
 client.use({
