@@ -2,7 +2,7 @@ import createClient from "openapi-fetch";
 import type { paths } from "./v1/schema";
 
 const client = createClient<paths>({
-  baseUrl: "http://localhost:8000", // Cambia esto según tu entorno
+  baseUrl: "http://localhost:8009", // Cambia esto según tu entorno
 });
 
 client.use({
@@ -16,7 +16,7 @@ client.use({
     }
     
     // 3. Retornamos la petición ya modificada
-    return request;
+    return new Request(request, { cache: "no-store" });
   }
 });
 
