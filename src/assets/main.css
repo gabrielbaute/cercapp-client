@@ -1,0 +1,17 @@
+/* Importación nativa de Tailwind v4 */
+@import "tailwindcss";
+
+/* Coplores de marca de CERCAPP */
+@theme {
+  --color-cercapp-navy: #002442;
+  --color-cercapp-gold: #B69E60;
+  --color-cercapp-light: #D9D9D9;
+  --color-cercapp-black: #000000;
+}
+
+/* Estilos globales */
+@layer base {
+  body {
+    @apply bg-gray-50 text-gray-900 antialiased;
+  }
+}
