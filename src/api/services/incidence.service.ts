@@ -3,7 +3,6 @@ import type { components } from "../v1/schema";
 
 export type IncidenceResponse = components["schemas"]["IncidenceResponse"]; //
 export type IncidenceStatus = components["schemas"]["IncidenceStatus"]; //
-export type ProcessIncidenceBody = components["schemas"]["Body_process_incidence_api_v1_incidences__incidence_id__process_patch"]; //
 
 export const IncidenceService = {
   // ==========================================
@@ -74,34 +73,6 @@ export const IncidenceService = {
   async cancelCompanyIncidence(incidenceId: string) {
     const { data, error } = await client.PATCH("/api/v1/incidences/companies/me/{incidence_id}/cancel", { //
       params: { path: { incidence_id: incidenceId } },
-    });
-    if (error) throw error;
-    return data;
-  },
-
-  // ==========================================
-  // RUTAS DE ADMINISTRADOR
-  // ==========================================
-
-  async listAllIncidences() {
-    const { data, error } = await client.GET("/api/v1/incidences/"); //
-    if (error) throw error;
-    return data;
-  },
-
-  async getIncidenceById(incidenceId: string) {
-    const { data, error } = await client.GET("/api/v1/incidences/{incidence_id}", { //
-      params: { path: { incidence_id: incidenceId } },
-    });
-    if (error) throw error;
-    return data;
-  },
-
-  async processIncidence(incidenceId: string, processData: ProcessIncidenceBody) {
-    // Esta ruta sí es un JSON normal (application/json)
-    const { data, error } = await client.PATCH("/api/v1/incidences/{incidence_id}/process", { //
-      params: { path: { incidence_id: incidenceId } },
-      body: processData,
     });
     if (error) throw error;
     return data;

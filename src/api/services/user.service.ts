@@ -29,45 +29,4 @@ export const UserService = {
     if (error) throw error;
     return data;
   },
-
-  // ==========================================
-  // RUTAS DE ADMINISTRADOR
-  // ==========================================
-
-  async listAllUsers() {
-    const { data, error } = await client.GET("/api/v1/users/"); //
-    if (error) throw error;
-    return data;
-  },
-
-  async getUserById(userId: string) {
-    // Fíjate cómo openapi-fetch maneja las variables en la URL (path parameters)
-    const { data, error } = await client.GET("/api/v1/users/{user_id}", { //
-      params: {
-        path: { user_id: userId },
-      },
-    });
-    if (error) throw error;
-    return data;
-  },
-
-  async blockUser(userId: string) {
-    const { data, error } = await client.PATCH("/api/v1/users/{user_id}/block", { //
-      params: {
-        path: { user_id: userId },
-      },
-    });
-    if (error) throw error;
-    return data;
-  },
-
-  async hardDeleteUser(userId: string) {
-    const { data, error } = await client.DELETE("/api/v1/users/{user_id}", { //
-      params: {
-        path: { user_id: userId },
-      },
-    });
-    if (error) throw error;
-    return data; // Aquí retornará null o undefined porque el backend devuelve 204 (No Content)
-  }
 };
