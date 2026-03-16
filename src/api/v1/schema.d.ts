@@ -175,7 +175,11 @@ export interface paths {
         delete: operations["hard_delete_user_api_v1_users__user_id__delete"];
         options?: never;
         head?: never;
-        patch?: never;
+        /**
+         * Update User Info
+         * @description Obtiene los detalles de un usuario específico por su ID (Solo Administradores).
+         */
+        patch: operations["update_user_info_api_v1_users__user_id__patch"];
         trace?: never;
     };
     "/api/v1/users/{user_id}/block": {
@@ -418,24 +422,44 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/v1/plans/{plan_id}/block": {
+    "/api/v1/plans/{user_id}": {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-        get?: never;
+        /**
+         * List User Plans
+         * @description Obtiene un listado de todos los planes de inversión de un usuario específico (Solo Administradores).
+         */
+        get: operations["list_user_plans_api_v1_plans__user_id__get"];
         put?: never;
         post?: never;
         delete?: never;
         options?: never;
         head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/plans/plan/{plan_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
         /**
-         * Block User Plan
-         * @description Bloquea un plan de inversión por irregularidades (Solo Administradores).
+         * Get Plan By Id
+         * @description Obtiene los detalles de un plan de inversión específico por su ID.
          */
-        patch: operations["block_user_plan_api_v1_plans__plan_id__block_patch"];
+        get: operations["get_plan_by_id_api_v1_plans_plan__plan_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
         trace?: never;
     };
     "/api/v1/plans/{plan_id}": {
@@ -455,7 +479,31 @@ export interface paths {
         delete: operations["delete_user_plan_api_v1_plans__plan_id__delete"];
         options?: never;
         head?: never;
-        patch?: never;
+        /**
+         * Update Plan Info
+         * @description Actualiza la configuración de un plan de inversión (Solo Administradores).
+         */
+        patch: operations["update_plan_info_api_v1_plans__plan_id__patch"];
+        trace?: never;
+    };
+    "/api/v1/plans/{plan_id}/block": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /**
+         * Block User Plan
+         * @description Bloquea un plan de inversión por irregularidades (Solo Administradores).
+         */
+        patch: operations["block_user_plan_api_v1_plans__plan_id__block_patch"];
         trace?: never;
     };
     "/api/v1/payments/users/me": {
@@ -552,6 +600,7 @@ export interface paths {
         /**
          * List All User Payments
          * @description Lista todos los pagos de todos los usuarios (Solo Administradores).
+         *     Soporta paginación mediante query parameters (?skip=0&limit=100).
          */
         get: operations["list_all_user_payments_api_v1_payments_users__get"];
         put?: never;
@@ -560,6 +609,70 @@ export interface paths {
         options?: never;
         head?: never;
         patch?: never;
+        trace?: never;
+    };
+    "/api/v1/payments/users/{user_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List User Payments
+         * @description Lista todos los pagos de un usuario específico (Solo Administradores).
+         */
+        get: operations["list_user_payments_api_v1_payments_users__user_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/payments/users/{investment_plan_id}/plan": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Investment Plan Payments
+         * @description Lista todos los pagos de un plan de inversión específico (Solo Administradores).
+         */
+        get: operations["list_investment_plan_payments_api_v1_payments_users__investment_plan_id__plan_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/payments/users/{payment_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /**
+         * Delete User Payment
+         * @description Elimina físicamente el registro de un pago (Solo Administradores).
+         */
+        delete: operations["delete_user_payment_api_v1_payments_users__payment_id__delete"];
+        options?: never;
+        head?: never;
+        /**
+         * Update Payment Info
+         * @description Actualiza la información de un pago (Solo Administradores).
+         */
+        patch: operations["update_payment_info_api_v1_payments_users__payment_id__patch"];
         trace?: never;
     };
     "/api/v1/payments/users/{payment_id}/accept": {
@@ -620,26 +733,6 @@ export interface paths {
          * @description Marca un pago como reembolsado (Solo Administradores).
          */
         patch: operations["refund_user_payment_api_v1_payments_users__payment_id__refund_patch"];
-        trace?: never;
-    };
-    "/api/v1/payments/users/{payment_id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post?: never;
-        /**
-         * Delete User Payment
-         * @description Elimina físicamente el registro de un pago (Solo Administradores).
-         */
-        delete: operations["delete_user_payment_api_v1_payments_users__payment_id__delete"];
-        options?: never;
-        head?: never;
-        patch?: never;
         trace?: never;
     };
     "/api/v1/payments/companies/me": {
@@ -1137,6 +1230,55 @@ export interface components {
             /** Detail */
             detail?: components["schemas"]["ValidationError"][];
         };
+        /** IncidenceAdminListResponse */
+        IncidenceAdminListResponse: {
+            /**
+             * Count
+             * @default 0
+             */
+            count: number;
+            /**
+             * Incidences
+             * @default []
+             */
+            incidences: components["schemas"]["IncidenceAdminResponse"][];
+        };
+        /** IncidenceAdminResponse */
+        IncidenceAdminResponse: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** User Id */
+            user_id?: string | null;
+            /** Company Id */
+            company_id?: string | null;
+            /** Admin Processed Id */
+            admin_processed_id?: string | null;
+            /** Content */
+            content: string;
+            /** Admin Comment */
+            admin_comment?: string | null;
+            /** Resource Path */
+            resource_path?: string | null;
+            status: components["schemas"]["IncidenceStatus"];
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /** Processed At */
+            processed_at?: string | null;
+            /** User Email */
+            user_email?: string | null;
+            /** User Document Number */
+            user_document_number?: string | null;
+            /** User First Name */
+            user_first_name?: string | null;
+            /** User Last Name */
+            user_last_name?: string | null;
+        };
         /** IncidenceListResponse */
         IncidenceListResponse: {
             /**
@@ -1183,6 +1325,63 @@ export interface components {
          * @enum {string}
          */
         IncidenceStatus: "PENDING" | "IN_PROGRESS" | "RESOLVED" | "CANCELED";
+        /** InvestmentPlanAdminListResponse */
+        InvestmentPlanAdminListResponse: {
+            /**
+             * Count
+             * @default 0
+             */
+            count: number;
+            /**
+             * Investment Plans
+             * @default []
+             */
+            investment_plans: components["schemas"]["InvestmentPlanAdminResponse"][];
+        };
+        /** InvestmentPlanAdminResponse */
+        InvestmentPlanAdminResponse: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /**
+             * User Id
+             * Format: uuid
+             */
+            user_id: string;
+            /** Plan Name */
+            plan_name: string;
+            investment_type: components["schemas"]["InvestmentType"];
+            status: components["schemas"]["InvestmentStatus"];
+            /** Capitalization Period */
+            capitalization_period: number;
+            payments_period: components["schemas"]["PaymentsPeriod"];
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at: string;
+            /** Maturity Date */
+            maturity_date?: string | null;
+            /** Days Remaining */
+            days_remaining?: number | null;
+            /** Is Ready For Renewal */
+            is_ready_for_renewal?: boolean | null;
+            /** User Email */
+            user_email?: string | null;
+            /** User Document Number */
+            user_document_number?: string | null;
+            /** User First Name */
+            user_first_name?: string | null;
+            /** User Last Name */
+            user_last_name?: string | null;
+        };
         /** InvestmentPlanCreate */
         InvestmentPlanCreate: {
             /**
@@ -1281,6 +1480,127 @@ export interface components {
             token: string;
             /** New Password */
             new_password: string;
+        };
+        /**
+         * PaymentAdminListResponse
+         * @description Respuesta en lista de pagos.
+         *
+         *     Args:
+         *         count (int): Conteo total de pagos.
+         *         payments (List[PaymentAdminResponse]): Lista de pagos.
+         */
+        PaymentAdminListResponse: {
+            /**
+             * Count
+             * @default 0
+             */
+            count: number;
+            /**
+             * Payments
+             * @default []
+             */
+            payments: components["schemas"]["PaymentAdminResponse"][];
+        };
+        /** PaymentAdminResponse */
+        PaymentAdminResponse: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /**
+             * User Id
+             * Format: uuid
+             */
+            user_id: string;
+            /**
+             * Investment Plan Id
+             * Format: uuid
+             */
+            investment_plan_id: string;
+            /** Company Id */
+            company_id?: string | null;
+            /** Divisa Amount */
+            divisa_amount: string;
+            /** Ves Amount */
+            ves_amount?: string | null;
+            /** Payment Date */
+            payment_date?: string | null;
+            payment_method: components["schemas"]["PaymentMethod"];
+            /** Transaction Id */
+            transaction_id?: string | null;
+            status: components["schemas"]["PaymentStatus"];
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /** Processed At */
+            processed_at?: string | null;
+            /** Updated At */
+            updated_at?: string | null;
+            /** User Email */
+            user_email?: string | null;
+            /** User Document Number */
+            user_document_number?: string | null;
+            /** User First Name */
+            user_first_name?: string | null;
+            /** User Last Name */
+            user_last_name?: string | null;
+        };
+        /** PaymentCompanyAdminListResponse */
+        PaymentCompanyAdminListResponse: {
+            /**
+             * Count
+             * @default 0
+             */
+            count: number;
+            /**
+             * Payments Companies
+             * @default []
+             */
+            payments_companies: components["schemas"]["PaymentCompanyAdminResponse"][];
+        };
+        /** PaymentCompanyAdminResponse */
+        PaymentCompanyAdminResponse: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /**
+             * Company Id
+             * Format: uuid
+             */
+            company_id: string;
+            /** Divisa Amount */
+            divisa_amount: string;
+            /** Ves Amount */
+            ves_amount?: string | null;
+            /**
+             * Payment Date
+             * Format: date
+             */
+            payment_date: string;
+            payment_method: components["schemas"]["PaymentMethod"];
+            /** Transaction Id */
+            transaction_id?: string | null;
+            status: components["schemas"]["PaymentStatus"];
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /** Processed At */
+            processed_at?: string | null;
+            /** Updated At */
+            updated_at?: string | null;
+            /** Company Name */
+            company_name?: string | null;
+            /** Company Rif */
+            company_rif?: string | null;
+            /** Company Email */
+            company_email?: string | null;
         };
         /** PaymentCompanyCreate */
         PaymentCompanyCreate: {
@@ -1418,11 +1738,8 @@ export interface components {
             divisa_amount: string;
             /** Ves Amount */
             ves_amount?: string | null;
-            /**
-             * Payment Date
-             * Format: date
-             */
-            payment_date: string;
+            /** Payment Date */
+            payment_date?: string | null;
             payment_method: components["schemas"]["PaymentMethod"];
             /** Transaction Id */
             transaction_id?: string | null;
@@ -1442,6 +1759,19 @@ export interface components {
          * @enum {string}
          */
         PaymentStatus: "PENDING" | "COMPLETED" | "REJECTED" | "REFUNDED" | "CANCELLED";
+        /** PaymentUpdate */
+        PaymentUpdate: {
+            /** Divisa Amount */
+            divisa_amount?: number | string | null;
+            /** Ves Amount */
+            ves_amount?: number | string | null;
+            /** Payment Date */
+            payment_date?: string | null;
+            payment_method?: components["schemas"]["PaymentMethod"] | null;
+            /** Transaction Id */
+            transaction_id?: string | null;
+            status?: components["schemas"]["PaymentStatus"] | null;
+        };
         /**
          * PaymentsPeriod
          * @enum {string}
@@ -1908,6 +2238,10 @@ export interface operations {
     list_all_users_api_v1_users__get: {
         parameters: {
             query?: {
+                /** @description Número de registros a omitir */
+                skip?: number;
+                /** @description Límite de registros a devolver */
+                limit?: number;
                 token?: string | null;
             };
             header?: never;
@@ -1988,6 +2322,43 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    update_user_info_api_v1_users__user_id__patch: {
+        parameters: {
+            query?: {
+                token?: string | null;
+            };
+            header?: never;
+            path: {
+                user_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UserUpdate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UserResponse"];
+                };
             };
             /** @description Validation Error */
             422: {
@@ -2494,10 +2865,47 @@ export interface operations {
     list_all_plans_api_v1_plans__get: {
         parameters: {
             query?: {
+                /** @description Número de registros a omitir */
+                skip?: number;
+                /** @description Límite de registros a devolver */
+                limit?: number;
                 token?: string | null;
             };
             header?: never;
             path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["InvestmentPlanAdminListResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_user_plans_api_v1_plans__user_id__get: {
+        parameters: {
+            query?: {
+                token?: string | null;
+            };
+            header?: never;
+            path: {
+                user_id: string;
+            };
             cookie?: never;
         };
         requestBody?: never;
@@ -2522,7 +2930,7 @@ export interface operations {
             };
         };
     };
-    block_user_plan_api_v1_plans__plan_id__block_patch: {
+    get_plan_by_id_api_v1_plans_plan__plan_id__get: {
         parameters: {
             query?: {
                 token?: string | null;
@@ -2574,6 +2982,76 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    update_plan_info_api_v1_plans__plan_id__patch: {
+        parameters: {
+            query?: {
+                token?: string | null;
+            };
+            header?: never;
+            path: {
+                plan_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["InvestmentPlanUpdate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["InvestmentPlanResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    block_user_plan_api_v1_plans__plan_id__block_patch: {
+        parameters: {
+            query?: {
+                token?: string | null;
+            };
+            header?: never;
+            path: {
+                plan_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["InvestmentPlanResponse"];
+                };
             };
             /** @description Validation Error */
             422: {
@@ -2754,6 +3232,10 @@ export interface operations {
     list_all_user_payments_api_v1_payments_users__get: {
         parameters: {
             query?: {
+                /** @description Número de registros a omitir */
+                skip?: number;
+                /** @description Límite de registros a devolver */
+                limit?: number;
                 token?: string | null;
             };
             header?: never;
@@ -2768,7 +3250,141 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
+                    "application/json": components["schemas"]["PaymentAdminListResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_user_payments_api_v1_payments_users__user_id__get: {
+        parameters: {
+            query?: {
+                token?: string | null;
+            };
+            header?: never;
+            path: {
+                user_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PaymentAdminListResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_investment_plan_payments_api_v1_payments_users__investment_plan_id__plan_get: {
+        parameters: {
+            query?: {
+                token?: string | null;
+            };
+            header?: never;
+            path: {
+                investment_plan_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
                     "application/json": components["schemas"]["PaymentListResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    delete_user_payment_api_v1_payments_users__payment_id__delete: {
+        parameters: {
+            query?: {
+                token?: string | null;
+            };
+            header?: never;
+            path: {
+                payment_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    update_payment_info_api_v1_payments_users__payment_id__patch: {
+        parameters: {
+            query?: {
+                token?: string | null;
+            };
+            header?: never;
+            path: {
+                payment_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PaymentUpdate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PaymentResponse"];
                 };
             };
             /** @description Validation Error */
@@ -2869,37 +3485,6 @@ export interface operations {
                 content: {
                     "application/json": components["schemas"]["PaymentResponse"];
                 };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    delete_user_payment_api_v1_payments_users__payment_id__delete: {
-        parameters: {
-            query?: {
-                token?: string | null;
-            };
-            header?: never;
-            path: {
-                payment_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            204: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
             };
             /** @description Validation Error */
             422: {
@@ -3047,6 +3632,10 @@ export interface operations {
     list_all_company_payments_api_v1_payments_companies__get: {
         parameters: {
             query?: {
+                /** @description Número de registros a omitir */
+                skip?: number;
+                /** @description Límite de registros a devolver */
+                limit?: number;
                 token?: string | null;
             };
             header?: never;
@@ -3061,7 +3650,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["PaymentCompanyListResponse"];
+                    "application/json": components["schemas"]["PaymentCompanyAdminListResponse"];
                 };
             };
             /** @description Validation Error */
@@ -3406,6 +3995,10 @@ export interface operations {
     list_all_incidences_api_v1_incidences__get: {
         parameters: {
             query?: {
+                /** @description Número de registros a omitir */
+                skip?: number;
+                /** @description Límite de registros a devolver */
+                limit?: number;
                 token?: string | null;
             };
             header?: never;
@@ -3420,7 +4013,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["IncidenceListResponse"];
+                    "application/json": components["schemas"]["IncidenceAdminListResponse"];
                 };
             };
             /** @description Validation Error */
@@ -3453,7 +4046,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["IncidenceResponse"];
+                    "application/json": components["schemas"]["IncidenceAdminResponse"];
                 };
             };
             /** @description Validation Error */
