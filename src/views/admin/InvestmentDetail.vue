@@ -5,6 +5,7 @@ import InfoRow from '../../components/common/InfoRow.vue';
 import InvestmentStatusBadge from '../../components/common/InvestmentStatusBadge.vue';
 import PaymentStatusBadge from '../../components/common/PaymentStatusBadge.vue';
 import PaymentHistoryChart from '../../components/common/PaymentHistoryChart.vue';
+import InterestHistoryChart from '../../components/common/InterestHistoryChart.vue'; // NUEVO
 import ConfirmModal from '../../components/common/ConfirmModal.vue';
 import EditPaymentModal from '../../components/admin/EditPaymentModal.vue';
 import EditPlanModal from '../../components/admin/EditPlanModal.vue';
@@ -13,7 +14,7 @@ export default defineComponent({
   name: 'InvestmentDetail',
   components: { 
     InfoRow, InvestmentStatusBadge, PaymentStatusBadge, 
-    PaymentHistoryChart, ConfirmModal, EditPaymentModal, EditPlanModal 
+    PaymentHistoryChart, InterestHistoryChart, ConfirmModal, EditPaymentModal, EditPlanModal 
   },
   setup() { return { ...useInvestmentDetail() }; }
 });
@@ -24,16 +25,16 @@ export default defineComponent({
 
     <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-100 pb-4">
       <div class="flex items-center gap-4 text-left">
-        <button @click="$router.back()" class="p-2 bg-white border border-slate-200 rounded-lg text-slate-400 hover:text-slate-900 transition-colors">
+        <button @click="$router.back()" class="p-2 bg-white border border-slate-200 rounded-lg text-slate-400 hover:text-slate-900 transition-colors shadow-sm">
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
         </button>
         <div v-if="plan">
           <h1 class="text-2xl font-bold text-slate-900">{{ plan.plan_name }}</h1>
           <div class="flex items-center gap-3 mt-1">
             <span class="text-xs font-mono text-slate-400">ID: {{ plan.id }}</span>
-            <span v-if="plan.days_remaining !== null" 
-                  :class="plan.days_remaining <= 5 ? 'text-red-600 bg-red-50' : 'text-blue-600 bg-blue-50'"
-                  class="text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-tight">
+            <span v-if="typeof plan.days_remaining === 'number'" 
+                  class="text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-tight border"
+                  :class="plan.days_remaining <= 5 ? 'text-red-600 bg-red-50 border-red-100' : 'text-blue-600 bg-blue-50 border-blue-100'">
               {{ plan.days_remaining }} días para vencimiento
             </span>
           </div>
@@ -41,20 +42,47 @@ export default defineComponent({
       </div>
 
       <div class="flex gap-2" v-if="plan">
-        <button @click="modal.editPlan = true" class="px-4 py-2 bg-slate-100 text-slate-700 rounded-lg font-bold text-xs hover:bg-slate-200 transition-colors">Editar Plan</button>
-        <button @click="handleBlockPlan" class="px-4 py-2 rounded-lg font-bold text-xs text-white" :class="plan.status === 'BLOCKED' ? 'bg-green-600' : 'bg-amber-500'">
+        <button @click="modal.editPlan = true" class="px-4 py-2 bg-slate-100 text-slate-700 rounded-lg font-bold text-xs hover:bg-slate-200 transition-colors shadow-sm">Editar Plan</button>
+        <button @click="handleBlockPlan" class="px-4 py-2 rounded-lg font-bold text-xs text-white shadow-sm transition-colors" :class="plan.status === 'BLOCKED' ? 'bg-green-600 hover:bg-green-700' : 'bg-amber-500 hover:bg-amber-600'">
           {{ plan.status === 'BLOCKED' ? 'Activar' : 'Bloquear' }}
         </button>
       </div>
     </div>
+
     <div v-if="isLoading" class="py-20 text-center text-slate-400 font-medium italic">
       Analizando registros financieros...
     </div>
+    
+    <div v-else-if="errorMessage" class="bg-red-50 text-red-600 p-4 rounded-xl border border-red-100 text-left">
+      {{ errorMessage }}
+    </div>
+
     <div v-else-if="plan" class="space-y-6">
 
-      <section class="bg-white p-4 rounded-2xl shadow-sm border border-slate-200 h-80">
-        <PaymentHistoryChart :payments="payments" title="Evolución de Capital en este Plan ($)" />
+      <section class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+        <div class="flex border-b border-slate-100 bg-slate-50">
+          <button 
+            @click="activeChartTab = 'PAYMENTS'" 
+            :class="activeChartTab === 'PAYMENTS' ? 'border-blue-600 text-blue-700 bg-white' : 'border-transparent text-slate-500 hover:text-slate-700'"
+            class="px-6 py-3 font-bold text-xs uppercase tracking-wider border-b-2 transition-colors"
+          >
+            Aportes de Capital
+          </button>
+          <button 
+            @click="activeChartTab = 'INTERESTS'" 
+            :class="activeChartTab === 'INTERESTS' ? 'border-amber-500 text-amber-600 bg-white' : 'border-transparent text-slate-500 hover:text-slate-700'"
+            class="px-6 py-3 font-bold text-xs uppercase tracking-wider border-b-2 transition-colors"
+          >
+            Intereses Devengados
+          </button>
+        </div>
+        
+        <div class="p-4 h-80">
+          <PaymentHistoryChart v-if="activeChartTab === 'PAYMENTS'" :payments="payments" title="Evolución de Capital Confirmado ($)" />
+          <InterestHistoryChart v-if="activeChartTab === 'INTERESTS'" :interests="interests" title="Histórico de Rendimientos Mensuales ($)" />
+        </div>
       </section>
+
       <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
         
         <div class="text-left">
@@ -66,7 +94,8 @@ export default defineComponent({
               <InfoRow label="Frecuencia Pago" :value="plan.payments_period" />
               
               <InfoRow label="Fecha Vencimiento" :value="plan.maturity_date ? new Date(plan.maturity_date).toLocaleDateString() : 'No definida'" />
-              <InfoRow label="Días Restantes" :value="plan.days_remaining" />
+              
+              <InfoRow label="Días Restantes" :value="plan.days_remaining ?? 'N/A'" />
               
               <div class="flex flex-col py-2 border-b border-slate-50">
                 <span class="text-[10px] uppercase font-bold text-slate-400 tracking-tight">Estatus de Renovación</span>
@@ -82,15 +111,31 @@ export default defineComponent({
             </div>
           </section>
         </div>
+
         <div class="lg:col-span-2">
           <section class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden text-left">
-            <div class="px-6 py-4 bg-slate-50 border-b border-slate-100 flex justify-between items-center">
-              <h3 class="font-bold text-slate-900">Transacciones del Plan</h3>
-              <span class="text-xs font-bold text-slate-400 bg-white px-2 py-1 rounded-md border border-slate-200">{{ payments.length }} registros</span>
+            
+            <div class="px-2 pt-2 bg-slate-50 border-b border-slate-100 flex gap-2">
+              <button 
+                @click="activeTableTab = 'PAYMENTS'" 
+                :class="activeTableTab === 'PAYMENTS' ? 'bg-white border-slate-200 border-b-transparent text-slate-900 shadow-sm' : 'border-transparent text-slate-500 hover:text-slate-700 hover:bg-slate-100'"
+                class="px-4 py-2 text-xs font-bold uppercase rounded-t-lg border transition-all translate-y-[1px]"
+              >
+                Transacciones ({{ payments.length }})
+              </button>
+              <button 
+                @click="activeTableTab = 'INTERESTS'" 
+                :class="activeTableTab === 'INTERESTS' ? 'bg-white border-slate-200 border-b-transparent text-slate-900 shadow-sm' : 'border-transparent text-slate-500 hover:text-slate-700 hover:bg-slate-100'"
+                class="px-4 py-2 text-xs font-bold uppercase rounded-t-lg border transition-all translate-y-[1px]"
+              >
+                Auditoría de Intereses ({{ interests.length }})
+              </button>
             </div>
-            <div class="overflow-x-auto">
-              <table class="w-full text-sm">
-                <thead class="bg-slate-50/50 text-slate-400 text-[10px] font-bold uppercase">
+            
+            <div class="overflow-x-auto min-h-[300px]">
+              
+              <table v-if="activeTableTab === 'PAYMENTS'" class="w-full text-sm">
+                <thead class="bg-white text-slate-400 text-[10px] font-bold uppercase border-b border-slate-100">
                   <tr>
                     <th class="px-6 py-3">Monto / Fecha</th>
                     <th class="px-6 py-3 text-center">Estado</th>
@@ -98,6 +143,9 @@ export default defineComponent({
                   </tr>
                 </thead>
                 <tbody class="divide-y divide-slate-100">
+                  <tr v-if="payments.length === 0">
+                    <td colspan="3" class="px-6 py-8 text-center text-slate-400 italic">No hay transacciones registradas.</td>
+                  </tr>
                   <tr v-for="pay in payments" :key="pay.id" class="hover:bg-slate-50/50">
                     <td class="px-6 py-4">
                       <div class="font-bold text-slate-900">$ {{ pay.divisa_amount }}</div>
@@ -119,13 +167,46 @@ export default defineComponent({
                   </tr>
                 </tbody>
               </table>
+
+              <table v-if="activeTableTab === 'INTERESTS'" class="w-full text-sm">
+                <thead class="bg-white text-slate-400 text-[10px] font-bold uppercase border-b border-slate-100">
+                  <tr>
+                    <th class="px-6 py-3">Periodo (Mes/Año)</th>
+                    <th class="px-6 py-3 text-center">Tasa Aplicada</th>
+                    <th class="px-6 py-3 text-right">Capital Base</th>
+                    <th class="px-6 py-3 text-right">Generado</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100">
+                  <tr v-if="interests.length === 0">
+                    <td colspan="4" class="px-6 py-8 text-center text-slate-400 italic">No se han generado intereses aún.</td>
+                  </tr>
+                  <tr v-for="int in [...interests].reverse()" :key="int.id" class="hover:bg-slate-50/50">
+                    <td class="px-6 py-4">
+                      <div class="font-bold text-slate-900">Mes {{ int.periodo_mes }}</div>
+                      <div class="text-[10px] text-slate-400">{{ int.periodo_anio }}</div>
+                    </td>
+                    <td class="px-6 py-4 text-center font-mono text-slate-500">
+                      {{ parseFloat(String(int.tasa_aplicada_anual)).toFixed(2) }}%
+                    </td>
+                    <td class="px-6 py-4 text-right text-slate-600">
+                      $ {{ parseFloat(String(int.capital_social_base)).toFixed(2) }}
+                    </td>
+                    <td class="px-6 py-4 text-right font-bold text-amber-600">
+                      + $ {{ parseFloat(String(int.interes_periodo)).toFixed(2) }}
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+
             </div>
           </section>
         </div>
-        </div>
+      </div>
     </div>
-    <EditPlanModal :show="modal.editPlan" :plan="plan" :isLoading="isActionLoading" @close="modal.editPlan = false" @save="onSavePlan" />
+
+    <EditPlanModal v-if="plan" :show="modal.editPlan" :plan="plan" :isLoading="isActionLoading" @close="modal.editPlan = false" @save="onSavePlan" />
     <EditPaymentModal :show="modal.editPayment" :payment="selectedPayment" :isLoading="isActionLoading" @close="modal.editPayment = false" @save="onSavePayment" />
     <ConfirmModal :show="modal.show" :title="modal.title" :message="modal.message" :type="modal.type" :isLoading="isActionLoading" @confirm="executeAction" @close="modal.show = false" />
-    </div>
+  </div>
 </template>

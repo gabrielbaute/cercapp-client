@@ -2,19 +2,29 @@ import { ref, reactive, onMounted } from 'vue';
 import { useRoute } from 'vue-router';
 import { InvestmentAdminService } from '../../api/services/investment-admin.service';
 import { PaymentAdminService } from '../../api/services/payment-admin.service';
+import { InterestService } from '../../api/services/interest.service'; // NUEVO
 import type { components } from '../../api/v1/schema';
+
+type InvestmentPlan = components["schemas"]["InvestmentPlanResponse"];
+type Payment = components["schemas"]["PaymentResponse"];
+type Interest = components["schemas"]["InterestResponse"]; // NUEVO
 
 export default function useInvestmentDetail() {
   const route = useRoute();
   const planId = route.params.id as string;
 
-  const plan = ref<components["schemas"]["InvestmentPlanResponse"] | null>(null);
-  const payments = ref<components["schemas"]["PaymentResponse"][]>([]);
+  const plan = ref<InvestmentPlan | null>(null);
+  const payments = ref<Payment[]>([]);
+  const interests = ref<Interest[]>([]); // NUEVO
   const selectedPayment = ref<any>(null);
   
   const isLoading = ref(true);
   const isActionLoading = ref(false);
   const errorMessage = ref('');
+
+  // ESTADOS PARA LAS PESTAÑAS (TABS) INDEPENDIENTES
+  const activeChartTab = ref<'PAYMENTS' | 'INTERESTS'>('PAYMENTS');
+  const activeTableTab = ref<'PAYMENTS' | 'INTERESTS'>('PAYMENTS');
 
   const modal = reactive({
     show: false, editPlan: false, editPayment: false,
@@ -24,17 +34,23 @@ export default function useInvestmentDetail() {
   const loadData = async () => {
     isLoading.value = true;
     try {
-      const [pData, payData] = await Promise.all([
+      // Cargamos el Plan, los Pagos y los Intereses en paralelo
+      const [pData, payData, intData] = await Promise.all([
         InvestmentAdminService.getPlanById(planId),
-        PaymentAdminService.getPaymentsByPlanId(planId)
+        PaymentAdminService.getPaymentsByPlanId(planId),
+        InterestService.getPlanInterests(planId)
       ]);
       plan.value = pData;
       payments.value = payData.payments || [];
-    } catch (e) { errorMessage.value = "Error de sincronización."; }
-    finally { isLoading.value = false; }
+      interests.value = intData.interests || [];
+    } catch (e) { 
+      errorMessage.value = "Error de sincronización con el servidor."; 
+    } finally { 
+      isLoading.value = false; 
+    }
   };
 
-  // ACCIONES DEL PLAN
+  // --- ACCIONES DEL PLAN ---
   const onSavePlan = async (formData: any) => {
     isActionLoading.value = true;
     try {
@@ -53,7 +69,7 @@ export default function useInvestmentDetail() {
     modal.action = async () => { await InvestmentAdminService.blockPlan(planId); };
   };
 
-  // ACCIONES DE PAGOS
+  // --- ACCIONES DE PAGOS ---
   const handlePaymentAction = (payment: any, type: string) => {
     if (type === 'edit') { selectedPayment.value = payment; modal.editPayment = true; return; }
     
@@ -78,21 +94,23 @@ export default function useInvestmentDetail() {
       await PaymentAdminService.updatePayment(selectedPayment.value.id, formData);
       modal.editPayment = false;
       await loadData();
-    } catch (e) { alert("Error"); }
+    } catch (e) { alert("Error al actualizar pago"); }
     finally { isActionLoading.value = false; }
   };
 
+  // --- EJECUCIÓN GENÉRICA ---
   const executeAction = async () => {
     isActionLoading.value = true;
     try { await modal.action(); modal.show = false; await loadData(); }
-    catch (e) { alert("Error"); }
+    catch (e) { alert("Error en la operación"); }
     finally { isActionLoading.value = false; }
   };
 
   onMounted(loadData);
 
   return { 
-    plan, payments, isLoading, isActionLoading, errorMessage, modal, selectedPayment,
+    plan, payments, interests, activeChartTab, activeTableTab, 
+    isLoading, isActionLoading, errorMessage, modal, selectedPayment,
     onSavePlan, onSavePayment, handleBlockPlan, handlePaymentAction, executeAction 
   };
 }
