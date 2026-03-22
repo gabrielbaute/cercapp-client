@@ -38,7 +38,7 @@ export default defineComponent({
         <option value="PENDING">Solo Pendientes</option>
         <option value="COMPLETED">Solo Completados</option>
         <option value="REJECTED">Solo Rechazados</option>
-        <option value="CANCELLED">Solo Cancelados</option>
+        <option value="CANCELED">Solo Cancelados</option>
       </select>
     </div>
 

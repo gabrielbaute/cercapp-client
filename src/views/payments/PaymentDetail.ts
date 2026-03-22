@@ -1,4 +1,4 @@
-import { ref, onMounted, computed } from 'vue';
+import { ref, reactive, onMounted, computed } from 'vue';
 import { useRoute } from 'vue-router';
 import { useAuthStore } from '../../store/auth.store';
 import { PaymentUserService } from '../../api/services/payment-user.service';
@@ -23,15 +23,23 @@ export default function usePaymentDetail() {
   const isCancelling = ref(false);
   const errorMessage = ref('');
 
+  // NUEVO: Estado reactivo para el modal de confirmación
+  const modal = reactive({
+    show: false,
+    title: '',
+    message: '',
+    type: 'danger' as 'danger' | 'warning' | 'info'
+  });
+
   // Clases CSS dinámicas para el estado del pago
   const statusClasses = computed(() => {
     if (!payment.value) return '';
     switch (payment.value.status) {
-      case 'COMPLETED': return 'bg-green-100 text-green-700'; //
-      case 'PENDING': return 'bg-yellow-100 text-yellow-700'; //
-      case 'REJECTED': return 'bg-red-100 text-red-700'; //
-      case 'REFUNDED': return 'bg-purple-100 text-purple-700'; //
-      case 'CANCELLED': return 'bg-gray-100 text-gray-700'; //
+      case 'COMPLETED': return 'bg-green-100 text-green-700'; 
+      case 'PENDING': return 'bg-yellow-100 text-yellow-700'; 
+      case 'REJECTED': return 'bg-red-100 text-red-700'; 
+      case 'REFUNDED': return 'bg-purple-100 text-purple-700'; 
+      case 'CANCELED': return 'bg-gray-100 text-gray-700'; 
       default: return 'bg-blue-100 text-blue-700';
     }
   });
@@ -48,10 +56,11 @@ export default function usePaymentDetail() {
         payment.value = await PaymentUserService.getMyPaymentById(paymentId);
       }
 
-      // 2. Cargar el nombre del Plan asociado (Mejora de UX)
-      if (payment.value?.investment_plan_id) {
+      // 2. Cargar el nombre del Plan asociado (Type Guard para TypeScript)
+      if (payment.value && 'investment_plan_id' in payment.value && payment.value.investment_plan_id) {
         try {
-          associatedPlan.value = await PlanService.getMyPlanById(payment.value.investment_plan_id); //
+          // Hacemos un casting seguro a string ya que validamos que existe
+          associatedPlan.value = await PlanService.getMyPlanById(payment.value.investment_plan_id as string); 
         } catch (planError) {
           console.warn("No se pudo cargar el nombre del plan asociado.", planError);
         }
@@ -65,19 +74,29 @@ export default function usePaymentDetail() {
     }
   };
 
-  const cancelPayment = async () => {
-    const confirmacion = window.confirm("¿Estás seguro de que deseas anular este reporte de pago?");
-    if (!confirmacion) return;
+  // 1. Abrir Modal de Confirmación
+  const confirmCancelPayment = () => {
+    modal.title = 'Anular Reporte de Pago';
+    modal.message = '¿Estás seguro de que deseas anular este reporte de pago? Esta acción no se puede deshacer.';
+    modal.type = 'danger';
+    modal.show = true;
+  };
 
+  // 2. Ejecutar la cancelación confirmada
+  const executeCancelPayment = async () => {
     isCancelling.value = true;
     try {
       if (authStore.isCompany) {
-        await PaymentCompanyService.cancelMyCompanyPayment(paymentId); //
+        await PaymentCompanyService.cancelMyCompanyPayment(paymentId); 
       } else {
-        await PaymentUserService.cancelMyPayment(paymentId); //
+        await PaymentUserService.cancelMyPayment(paymentId); 
       }
+      
       // Refrescamos los datos para que la UI muestre el estado "CANCELLED"
       await loadPaymentDetails(); 
+      
+      // Ocultamos el modal tras el éxito
+      modal.show = false;
     } catch (error: any) {
       console.error("Error al cancelar:", error);
       alert(error?.data?.detail?.[0]?.msg || "No se pudo anular el pago.");
@@ -97,6 +116,8 @@ export default function usePaymentDetail() {
     isCancelling,
     errorMessage,
     statusClasses,
-    cancelPayment
+    modal,
+    confirmCancelPayment,
+    executeCancelPayment
   };
 }
