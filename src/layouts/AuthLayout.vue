@@ -1,5 +1,5 @@
 <script setup lang="ts">
-// AuthLayout no necesita mucha lógica, es puramente presentacional
+import AuthFooter from '../components/common/AuthFooter.vue';
 </script>
 
 <template>
@@ -14,11 +14,12 @@
       </transition>
     </router-view>
     
+    <AuthFooter />
+
   </div>
 </template>
 
 <style scoped>
-/* Transición suave entre vistas de autenticación */
 .fade-enter-active,
 .fade-leave-active {
   transition: opacity 0.3s ease, transform 0.3s ease;
