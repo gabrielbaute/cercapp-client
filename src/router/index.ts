@@ -158,6 +158,12 @@ const routes: Array<RouteRecordRaw> = [
 
       // RUTAS DE ADMINISTRADOR
       {
+        path: 'admin',
+        name: 'AdminDashboard',
+        component: () => import('../views/admin/AdminDashboard.vue'),
+        meta: { requiresAdmin: true }
+      },
+      {
         path: 'admin/users',
         name: 'AdminUsers',
         component: () => import('../views/admin/UsersList.vue'),
@@ -252,7 +258,6 @@ const router = createRouter({
 });
 
 // NAVIGATION GUARD MODERNIZADO (Vue Router v4)
-// Eliminamos 'from' y 'next' de los parámetros porque ya no los necesitamos
 router.beforeEach((to) => {
   const authStore = useAuthStore();
   

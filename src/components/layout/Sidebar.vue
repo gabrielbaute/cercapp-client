@@ -34,9 +34,17 @@ const handleLogout = () => {
     </div>
     <nav class="flex-1 px-4 py-6 space-y-1 overflow-y-auto custom-scrollbar">
       
+      <!-- Admin pages -->
       <template v-if="authStore.isAdmin">
         <p class="px-4 text-xs font-semibold text-cercapp-gold uppercase tracking-wider mb-2 mt-4 first:mt-0">Panel de Control</p>
-        
+
+        <!-- Admin Dashboard -->
+        <router-link to="/admin" @click="emit('close-sidebar')" class="flex items-center gap-3 px-4 py-2.5 rounded-lg transition-colors hover:bg-white/10" active-class="bg-cercapp-gold text-white font-semibold shadow-md" exact-active-class="bg-cercapp-gold text-white font-semibold shadow-md">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path></svg>
+          Centro de Control
+        </router-link>
+
+        <!-- Lista de usuarios -->
         <router-link to="/admin/users" @click="emit('close-sidebar')" class="flex items-center gap-3 px-4 py-2.5 rounded-lg transition-colors hover:bg-white/10" active-class="bg-cercapp-gold text-white font-semibold shadow-md">
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
           Usuarios
@@ -62,6 +70,8 @@ const handleLogout = () => {
           Incidencias
         </router-link>
       </template>
+      
+      <!-- User pages -->
       <p class="px-4 text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2 mt-6 first:mt-0">Principal</p>
       
       <router-link to="/dashboard" @click="emit('close-sidebar')" class="flex items-center gap-3 px-4 py-2.5 rounded-lg transition-colors hover:bg-white/10" active-class="bg-cercapp-gold text-white font-semibold shadow-md">
@@ -108,6 +118,8 @@ const handleLogout = () => {
       </router-link>
 
     </nav>
+
+    <!-- Cierre de sesión -->
     <div class="p-4 border-t border-gray-700/50 shrink-0">
       <button 
         @click="handleLogout"
