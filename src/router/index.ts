@@ -1,48 +1,62 @@
 import { createRouter, createWebHistory, type RouteRecordRaw } from 'vue-router';
 import { useAuthStore } from '../store/auth.store';
 import DashboardLayout from '../layouts/DashboardLayout.vue';
+import AuthLayout from '../layouts/AuthLayout.vue';
 
 const routes: Array<RouteRecordRaw> = [
   // ==========================================
   // RUTAS PÚBLICAS (Solo Invitados)
-  // No usan el DashboardLayout
+  // Envueltas en AuthLayout
   // ==========================================
-  { path: '/', redirect: '/login' },
   {
-    path: '/login',
-    name: 'Login',
-    component: () => import('../views/auth/Login.vue'),
-    meta: { requiresGuest: true }
+    path: '/',
+    component: AuthLayout,
+    meta: { requiresGuest: true },
+    children: [
+      { path: '', redirect: '/login' },
+      {
+        path: 'login',
+        name: 'Login',
+        component: () => import('../views/auth/Login.vue')
+      },
+      {
+        path: 'register',
+        name: 'RegisterUser',
+        component: () => import('../views/auth/RegisterUser.vue')
+      },
+      {
+        path: 'register/company',
+        name: 'RegisterCompany',
+        component: () => import('../views/auth/RegisterCompany.vue')
+      },
+      {
+        path: 'recover-password',
+        name: 'RecoverPassword',
+        component: () => import('../views/auth/RecoverPassword.vue')
+      },
+      {
+        path: 'reset-password',
+        name: 'ResetPassword',
+        component: () => import('../views/auth/ResetPassword.vue')
+      }
+    ]
   },
-  {
-    path: '/register',
-    name: 'RegisterUser',
-    component: () => import('../views/auth/RegisterUser.vue'),
-    meta: { requiresGuest: true }
-  },
-  {
-    path: '/register/company',
-    name: 'RegisterCompany',
-    component: () => import('../views/auth/RegisterCompany.vue'),
-    meta: { requiresGuest: true }
-  },
-  {
-    path: '/recover-password',
-    name: 'RecoverPassword',
-    component: () => import('../views/auth/RecoverPassword.vue'),
-    meta: { requiresGuest: true }
-  },
-  {
-    path: '/reset-password',
-    name: 'ResetPassword',
-    component: () => import('../views/auth/ResetPassword.vue'),
-    meta: { requiresGuest: true }
-  },
+  
+  // ==========================================
+  // RUTA DE KYC INDEPENDIENTE 
+  // (Puede usar el AuthLayout también)
+  // ==========================================
   {
     path: '/kyc',
-    name: 'KYC',
-    component: () => import('../views/auth/KYC.vue'),
-    meta: { requiresGuest: true }
+    component: AuthLayout,
+    children: [
+      {
+        path: '',
+        name: 'KYC',
+        component: () => import('../views/auth/KYCStep.vue'),
+        meta: { requiresAuth: true } // El usuario DEBE estar logueado para hacer su KYC pendiente
+      }
+    ]
   },
 
   // ==========================================
@@ -245,6 +259,7 @@ router.beforeEach((to) => {
   const isAuth = authStore.isAuthenticated;
   const isAdmin = authStore.isAdmin;
   const isCompany = authStore.isCompany;
+  const userStatus = authStore.user?.status;
 
   // Utilizamos .matched para revisar el meta de los componentes padre e hijos
   const requiresAuth = to.matched.some(record => record.meta.requiresAuth);
@@ -252,7 +267,10 @@ router.beforeEach((to) => {
   const requiresAdmin = to.matched.some(record => record.meta.requiresAdmin);
   const requiresCompany = to.matched.some(record => record.meta.requiresCompany);
 
-  // En lugar de next({ ... }), hacemos un simple return
+  
+  if (isAuth && userStatus === 'PENDING_KYC' && to.name !== 'KYC') {
+    return { name: 'KYC' }; // Si el usuario tiene KYC pendiente, va directo a la vista de validación
+  }
   if (requiresAuth && !isAuth) {
     return { name: 'Login' };
   } 
