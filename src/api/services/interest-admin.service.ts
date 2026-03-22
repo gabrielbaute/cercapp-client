@@ -10,7 +10,6 @@ export const InterestAdminService = {
    * Lista todos los registros de intereses generados en la plataforma.
    */
   async getAllInterests(): Promise<InterestAdminListResponse> {
-    // Según tu esquema actual, este endpoint no recibe query params (skip/limit)
     const { data, error } = await client.GET("/api/v1/interests/");
     
     if (error) throw error;
@@ -37,11 +36,9 @@ export const InterestAdminService = {
    * Fuerza el cálculo manual de intereses. 
    * Ideal como respaldo si la tarea programada falla en el servidor.
    */
-  async forceManualCalculation(payload?: any) {
-    // Nota: El esquema marca POST sin query ni body definidos rígidamente, 
-    // pero si tu backend espera algún dato (ej. mes/año), se enviaría en el body.
+  async forceManualCalculation(year: number, month: number) {
     const { data, error } = await client.POST("/api/v1/interests/calculate/manual", {
-      body: payload || {}
+      query: { year, month }
     } as any);
     
     if (error) throw error;
