@@ -1,104 +1,12 @@
-<script setup lang="ts">
-import { ref, reactive, watch, onMounted, shallowRef } from 'vue';
-import Chart from 'chart.js/auto';
-import { CalculadoraInteresCompuesto, FRECUENCIA, UNIDAD_TIEMPO, type FrecuenciaType, type UnidadTiempoType, type RegistroHistorial } from '../../utils/calculator';
+<script lang="ts">
+import { defineComponent } from 'vue';
+import useCalculator from './Calculator';
 
-// Instanciamos la lógica matemática
-const calculadora = new CalculadoraInteresCompuesto();
-
-// Referencias al DOM
-const chartCanvas = ref<HTMLCanvasElement | null>(null);
-const chartInstance = shallowRef<Chart | null>(null);
-
-// Estado Reactivo del Formulario
-const form = reactive({
-  montoInicial: 1000,
-  aportePeriodico: 100,
-  tasaAnual: 7, // 7% o 9%
-  unidadTiempo: UNIDAD_TIEMPO.ANIOS as UnidadTiempoType,
-  duracion: 5,
-  frecuencia: FRECUENCIA.MENSUAL as FrecuenciaType,
-  tipoCalculo: 'capitalizacion' // 'simple' o 'capitalizacion'
-});
-
-const resultados = ref<RegistroHistorial[]>([]);
-const isCalculated = ref(false);
-
-// Lógica reactiva: Si cambia la unidad de tiempo, ajustamos la duración y el tipo de cálculo
-watch(() => form.unidadTiempo, (nuevaUnidad) => {
-  if (nuevaUnidad === UNIDAD_TIEMPO.MESES) {
-    form.duracion = 12;
-    form.tipoCalculo = 'simple'; // La capitalización anual no aplica en meses
-  } else {
-    form.duracion = 5;
+export default defineComponent({
+  name: 'CalculatorView',
+  setup() {
+    return { ...useCalculator() };
   }
-});
-
-const calcular = () => {
-  try {
-    const tasaDecimal = form.tasaAnual / 100;
-    
-    if (form.tipoCalculo === 'simple') {
-      resultados.value = calculadora.simularCrecimientoPorPeriodo(
-        form.montoInicial, form.aportePeriodico, tasaDecimal, form.duracion, form.unidadTiempo, form.frecuencia
-      );
-    } else {
-      resultados.value = calculadora.simularCrecimientoConCapitalizacion(
-        form.montoInicial, form.aportePeriodico, tasaDecimal, form.duracion, form.unidadTiempo, form.frecuencia
-      );
-    }
-
-    isCalculated.value = true;
-    dibujarGrafico();
-  } catch (error) {
-    console.error("Error al calcular", error);
-    alert("Revisa los datos ingresados.");
-  }
-};
-
-const dibujarGrafico = () => {
-  if (!chartCanvas.value) return;
-
-  // Destruir gráfico anterior si existe (evita sobreposiciones de Chart.js)
-  if (chartInstance.value) {
-    chartInstance.value.destroy();
-  }
-
-  const labels = resultados.value.map(r => r.etiqueta || `P${r.periodo}`);
-  const dataAcumulado = resultados.value.map(r => r.acumulado);
-
-  chartInstance.value = new Chart(chartCanvas.value, {
-    type: 'line',
-    data: {
-      labels,
-      datasets: [{
-        label: 'Crecimiento de la Inversión ($)',
-        data: dataAcumulado,
-        borderColor: '#002442', // Tu color navy corporativo
-        backgroundColor: 'rgba(0, 36, 66, 0.1)',
-        fill: true,
-        tension: 0.4 // Curva suave
-      }]
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      plugins: {
-        legend: { position: 'top' }
-      }
-    }
-  });
-};
-
-const limpiar = () => {
-  isCalculated.value = false;
-  resultados.value = [];
-  if (chartInstance.value) chartInstance.value.destroy();
-};
-
-// Calcular por defecto al montar la vista
-onMounted(() => {
-  calcular();
 });
 </script>
 
@@ -106,13 +14,13 @@ onMounted(() => {
   <div class="space-y-6">
     
     <div class="flex items-center justify-between">
-      <div>
+      <div class="text-left">
         <h1 class="text-2xl font-bold text-cercapp-navy">Calculadora de Inversión</h1>
         <p class="text-gray-500 mt-1">Proyecta tu futuro con interés compuesto.</p>
       </div>
     </div>
 
-    <div class="bg-white p-6 rounded-2xl shadow-sm border border-cercapp-light">
+    <div class="bg-white p-6 rounded-2xl shadow-sm border border-cercapp-light text-left">
       <form @submit.prevent="calcular" class="grid grid-cols-1 md:grid-cols-2 gap-6">
         
         <div class="space-y-4">
@@ -170,10 +78,10 @@ onMounted(() => {
         </div>
 
         <div class="md:col-span-2 flex gap-3 mt-2">
-          <button type="submit" class="bg-cercapp-navy hover:bg-blue-900 text-white font-semibold py-2 px-6 rounded-lg transition-colors">
+          <button type="submit" class="bg-cercapp-navy hover:bg-blue-900 text-white font-semibold py-2 px-6 rounded-lg transition-colors shadow-sm">
             Calcular Proyección
           </button>
-          <button type="button" @click="limpiar" class="bg-gray-200 hover:bg-gray-300 text-gray-700 font-semibold py-2 px-6 rounded-lg transition-colors">
+          <button type="button" @click="limpiar" class="bg-gray-200 hover:bg-gray-300 text-gray-700 font-semibold py-2 px-6 rounded-lg transition-colors shadow-sm">
             Limpiar
           </button>
         </div>
@@ -186,7 +94,7 @@ onMounted(() => {
         <canvas ref="chartCanvas"></canvas>
       </div>
 
-      <div class="bg-white rounded-2xl shadow-sm border border-cercapp-light overflow-hidden">
+      <div class="bg-white rounded-2xl shadow-sm border border-cercapp-light overflow-hidden text-left">
         <div class="p-4 border-b border-cercapp-light bg-gray-50">
           <h3 class="font-bold text-cercapp-navy">Desglose de Crecimiento</h3>
         </div>
@@ -201,7 +109,7 @@ onMounted(() => {
               </tr>
             </thead>
             <tbody>
-              <tr v-for="fila in resultados" :key="fila.periodo" class="border-b hover:bg-gray-50">
+              <tr v-for="fila in resultados" :key="fila.periodo" class="border-b hover:bg-gray-50 transition-colors">
                 <td class="px-6 py-3 font-medium text-gray-900">{{ fila.etiqueta || fila.periodo }}</td>
                 <td class="px-6 py-3">$ {{ fila.aporte.toFixed(2) }}</td>
                 <td class="px-6 py-3 text-green-600">$ {{ fila.ganancia.toFixed(2) }}</td>
