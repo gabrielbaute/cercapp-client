@@ -1,6 +1,6 @@
 import { createRouter, createWebHistory, type RouteRecordRaw } from 'vue-router';
 import { useAuthStore } from '../store/auth.store';
-import DashboardLayout from '../layouts/DashboardLayout.vue'; // 1. Importamos el Shell
+import DashboardLayout from '../layouts/DashboardLayout.vue';
 
 const routes: Array<RouteRecordRaw> = [
   // ==========================================
@@ -36,6 +36,12 @@ const routes: Array<RouteRecordRaw> = [
     path: '/reset-password',
     name: 'ResetPassword',
     component: () => import('../views/auth/ResetPassword.vue'),
+    meta: { requiresGuest: true }
+  },
+  {
+    path: '/kyc',
+    name: 'KYC',
+    component: () => import('../views/auth/KYC.vue'),
     meta: { requiresGuest: true }
   },
 
