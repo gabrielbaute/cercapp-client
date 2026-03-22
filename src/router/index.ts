@@ -193,7 +193,7 @@ const routes: Array<RouteRecordRaw> = [
       },
       {
         path: '/admin/payment/:id',
-        name: 'PaymentDetail',
+        name: 'PaymentDetailAdmin',
         component: () => import('../views/admin/PaymentDetail.vue'),
         meta: { requiresAdmin: true }
       },
