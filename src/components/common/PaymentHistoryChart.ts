@@ -12,11 +12,11 @@ export function usePaymentHistoryChart(props: { payments: any[], title: string }
     // Filtrado de pagos completados y ordenamiento cronológico
     const completed = [...props.payments]
       .filter(p => p.status === 'COMPLETED')
-      .sort((a, b) => new Date(a.payment_date).getTime() - new Date(b.payment_date).getTime());
+      .sort((a, b) => new Date(a.effective_date).getTime() - new Date(b.effective_date).getTime());
 
     // Agrupación por Mes y Año
     const grouped = completed.reduce((acc: Record<string, number>, curr) => {
-      const date = new Date(curr.payment_date);
+      const date = new Date(curr.effective_date);
       const label = `${date.toLocaleString('default', { month: 'short' })} ${date.getFullYear()}`;
       acc[label] = (acc[label] || 0) + Number(curr.divisa_amount);
       return acc;
