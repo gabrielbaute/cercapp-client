@@ -1,20 +1,15 @@
 <script setup lang="ts">
 import { useRegisterCompany } from './RegisterCompany';
-import isologoAzul from '../../assets/img/isologo_azul.png';
+import { AppAssets } from '../../utils/assets';
 
 const { form, isLoading, errorMessage, successMessage, submitRegister } = useRegisterCompany();
 </script>
 
 <template>
-  <div class="min-h-screen flex items-center justify-center bg-slate-50 py-12 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
-    
-    <div class="absolute top-0 right-0 w-[500px] h-[500px] bg-cercapp-navy/5 rounded-full blur-3xl translate-x-1/3 -translate-y-1/3"></div>
-    <div class="absolute bottom-0 left-0 w-[500px] h-[500px] bg-cercapp-gold/10 rounded-full blur-3xl -translate-x-1/3 translate-y-1/3"></div>
-
     <div class="max-w-xl w-full bg-white rounded-3xl shadow-xl p-8 md:p-10 space-y-6 border border-slate-100 relative z-10">
       
       <div class="text-center">
-        <img class="mx-auto h-16 w-auto object-contain drop-shadow-sm" :src="isologoAzul" alt="Cercapp Isologo" />
+        <img class="mx-auto h-16 w-auto object-contain drop-shadow-sm" :src="AppAssets.isologoAzul" alt="Cercapp Isologo" />
         <h1 class="mt-4 text-3xl font-extrabold text-cercapp-navy tracking-tight">Registro Corporativo</h1>
         <p class="text-slate-500 mt-2 text-sm font-medium">Afilia tu empresa a la red de CercAPP</p>
       </div>
@@ -122,5 +117,4 @@ const { form, isLoading, errorMessage, successMessage, submitRegister } = useReg
       </div>
 
     </div>
-  </div>
 </template>

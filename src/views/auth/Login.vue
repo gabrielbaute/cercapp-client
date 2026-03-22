@@ -1,23 +1,16 @@
 <script setup lang="ts">
-// Importamos tu lógica original intacta
 import { useLogin } from './Login';
-// Importamos el asset corporativo
-import isologoAzul from '../../assets/img/isologo_azul.png';
+import { AppAssets } from '../../utils/assets';
 
-// Desestructuramos las variables y la función de tu composable
+// Desestructuramos las variables y la función de composable
 const { email, password, isLoading, errorMessage, submitLogin } = useLogin();
 </script>
 
 <template>
-  <div class="min-h-screen flex items-center justify-center bg-slate-50 py-12 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
-    
-    <div class="absolute -top-24 -left-24 w-96 h-96 bg-cercapp-navy/5 rounded-full blur-3xl"></div>
-    <div class="absolute -bottom-24 -right-24 w-96 h-96 bg-cercapp-gold/10 rounded-full blur-3xl"></div>
-
     <div class="max-w-md w-full space-y-8 bg-white p-10 rounded-3xl shadow-xl border border-slate-100 relative z-10">
       
       <div class="text-center">
-        <img class="mx-auto h-20 w-auto object-contain drop-shadow-sm" :src="isologoAzul" alt="Cercapp Isologo" />
+        <img class="mx-auto h-20 w-auto object-contain drop-shadow-sm" :src="AppAssets.isologoAzul" alt="Cercapp Isologo" />
         <h2 class="mt-6 text-3xl font-extrabold text-cercapp-navy tracking-tight">
           Bienvenido a CercAPP
         </h2>
@@ -88,6 +81,6 @@ const { email, password, isLoading, errorMessage, submitLogin } = useLogin();
         </div>
 
       </form>
-      </div>
+      
   </div>
 </template>

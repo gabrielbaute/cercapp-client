@@ -1,22 +1,17 @@
 <script setup lang="ts">
+import KYCStep from './KYCStep.vue';
 import { useRegisterUser } from './RegisterUser';
-import KYCStep from './KYCStep.vue'; // NUEVO: Importamos el componente
-import isologoAzul from '../../assets/img/isologo_azul.png';
+import { AppAssets } from '../../utils/assets';
 import { COUNTRIES } from '../../utils/countries';
 
 const { form, currentStep, isLoading, errorMessage, successMessage, validateAndProceed, submitRegister } = useRegisterUser();
 </script>
 
 <template>
-  <div class="min-h-screen flex items-center justify-center bg-slate-50 py-12 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
-    
-    <div class="absolute top-10 left-10 w-96 h-96 bg-cercapp-navy/5 rounded-full blur-3xl pointer-events-none"></div>
-    <div class="absolute bottom-10 right-10 w-96 h-96 bg-cercapp-gold/10 rounded-full blur-3xl pointer-events-none"></div>
-
     <div v-if="currentStep === 'FORM'" class="max-w-2xl w-full bg-white rounded-3xl shadow-xl p-8 md:p-10 space-y-6 border border-slate-100 relative z-10 max-h-[90vh] overflow-y-auto custom-scrollbar animate-fade-in">
       
       <div class="text-center shrink-0">
-        <img class="mx-auto h-16 w-auto object-contain drop-shadow-sm" :src="isologoAzul" alt="Cercapp Isologo" />
+        <img class="mx-auto h-16 w-auto object-contain drop-shadow-sm" :src="AppAssets.isologoAzul" alt="Cercapp Isologo" />
         <h1 class="mt-4 text-3xl font-extrabold text-cercapp-navy tracking-tight">Crear Cuenta</h1>
         <p class="text-slate-500 mt-2 text-sm font-medium">Únete a CercAPP como Inversor Natural</p>
       </div>
@@ -147,8 +142,6 @@ const { form, currentStep, isLoading, errorMessage, successMessage, validateAndP
       </button>
 
     </div>
-
-  </div>
 </template>
 
 <style scoped>

@@ -1,20 +1,15 @@
 <script setup lang="ts">
 import { useResetPassword } from './ResetPassword';
-import isologoAzul from '../../assets/img/isologo_azul.png';
+import { AppAssets } from '../../utils/assets';
 
 const { token, newPassword, confirmPassword, isLoading, errorMessage, successMessage, submitReset } = useResetPassword();
 </script>
 
 <template>
-  <div class="min-h-screen flex items-center justify-center bg-slate-50 py-12 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
-    
-    <div class="absolute -top-24 -left-24 w-96 h-96 bg-cercapp-navy/5 rounded-full blur-3xl"></div>
-    <div class="absolute -bottom-24 -right-24 w-96 h-96 bg-cercapp-gold/10 rounded-full blur-3xl"></div>
-
     <div class="max-w-md w-full bg-white rounded-3xl shadow-xl p-10 space-y-6 border border-slate-100 relative z-10">
       
       <div class="text-center">
-        <img class="mx-auto h-20 w-auto object-contain drop-shadow-sm" :src="isologoAzul" alt="Cercapp Isologo" />
+        <img class="mx-auto h-20 w-auto object-contain drop-shadow-sm" :src="AppAssets.isologoAzul" alt="Cercapp Isologo" />
         <h1 class="mt-6 text-2xl font-extrabold text-cercapp-navy tracking-tight">Nueva Contraseña</h1>
         <p class="text-slate-500 mt-2 text-sm font-medium">Crea tu nueva contraseña segura para acceder a la plataforma.</p>
       </div>
@@ -70,5 +65,4 @@ const { token, newPassword, confirmPassword, isLoading, errorMessage, successMes
       </div>
 
     </div>
-  </div>
 </template>
