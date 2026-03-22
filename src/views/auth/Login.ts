@@ -27,7 +27,16 @@ export function useLogin() {
       await authStore.login({ email: email.value, password: password.value });
       
       // Si fue exitoso, el router nos lleva al dashboard
-      router.push({ name: 'Dashboard' });
+      setTimeout(() => {
+        // Redirección inteligente basada en el rol
+        if (authStore.isAdmin) {
+          router.push({ name: 'AdminDashboard' });
+        } else if (authStore.isCompany) {
+          router.push({ name: 'CompanyUsers' }); // O el dashboard que le corresponda a la empresa
+        } else {
+          router.push({ name: 'Dashboard' }); // El dashboard del usuario normal
+        }
+      }, 1500);
     } catch (error: any) {
       console.error("Error en login:", error);
       errorMessage.value = 'Credenciales inválidas o error de conexión.';
