@@ -1,4 +1,4 @@
-import { ref, computed, onMounted } from 'vue';
+import { ref, reactive, computed, onMounted } from 'vue';
 import { useAuthStore } from '../../store/auth.store';
 import { IncidenceService } from '../../api/services/incidence.service';
 import type { components } from '../../api/v1/schema';
@@ -10,9 +10,19 @@ export default function useMyIncidences() {
   
   const incidences = ref<Incidence[]>([]);
   const isLoading = ref(true);
+  const isActionLoading = ref(false); // Para el spinner del modal
   const errorMessage = ref('');
 
   const currentFilter = ref('ACTIVE'); 
+
+  // NUEVO: Estado reactivo para el modal de confirmación
+  const modal = reactive({
+    show: false,
+    title: '',
+    message: '',
+    type: 'warning' as 'danger' | 'warning' | 'info',
+    incidenceIdToCancel: '' as string | null
+  });
 
   const filteredIncidences = computed(() => {
     if (currentFilter.value === 'ACTIVE') {
@@ -26,12 +36,14 @@ export default function useMyIncidences() {
 
   const loadIncidences = async () => {
     isLoading.value = true;
+    errorMessage.value = '';
     try {
       if (authStore.isCompany) {
-        const data = await IncidenceService.getMyCompanyIncidences();
-        incidences.value = data.incidences_companies || [];
+        const data: any = await IncidenceService.getMyCompanyIncidences();
+        // Solución al TS Error: Buscamos incidencias bajo el nombre correcto
+        incidences.value = data.incidences_companies || data.incidences || [];
       } else {
-        const data = await IncidenceService.getMyUserIncidences();
+        const data: any = await IncidenceService.getMyUserIncidences();
         incidences.value = data.incidences || [];
       }
     } catch (error) {
@@ -42,20 +54,35 @@ export default function useMyIncidences() {
     }
   };
 
-  const cancelIncidence = async (incidenceId: string) => {
-    const confirmacion = window.confirm("¿Seguro que deseas cancelar este ticket de soporte?");
-    if (!confirmacion) return;
+  // 1. Abrir Modal de Confirmación
+  const confirmCancelIncidence = (incidenceId: string) => {
+    modal.title = 'Cancelar Ticket';
+    modal.message = '¿Seguro que deseas cancelar este ticket de soporte? Si el problema persiste, deberás crear uno nuevo.';
+    modal.type = 'warning';
+    modal.incidenceIdToCancel = incidenceId;
+    modal.show = true;
+  };
 
+  // 2. Ejecutar la cancelación
+  const executeCancelIncidence = async () => {
+    if (!modal.incidenceIdToCancel) return;
+    
+    isActionLoading.value = true;
     try {
       if (authStore.isCompany) {
-        await IncidenceService.cancelCompanyIncidence(incidenceId);
+        await IncidenceService.cancelCompanyIncidence(modal.incidenceIdToCancel);
       } else {
-        await IncidenceService.cancelUserIncidence(incidenceId);
+        await IncidenceService.cancelUserIncidence(modal.incidenceIdToCancel);
       }
+      
+      modal.show = false;
+      modal.incidenceIdToCancel = null;
       await loadIncidences();
     } catch (error: any) {
       console.error("Error al cancelar:", error);
       alert("No se pudo cancelar el ticket.");
+    } finally {
+      isActionLoading.value = false;
     }
   };
 
@@ -68,7 +95,10 @@ export default function useMyIncidences() {
     filteredIncidences,
     currentFilter,
     isLoading,
+    isActionLoading,
     errorMessage,
-    cancelIncidence
+    modal,
+    confirmCancelIncidence,
+    executeCancelIncidence
   };
 }

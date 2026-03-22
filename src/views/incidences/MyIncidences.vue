@@ -2,10 +2,11 @@
 import { defineComponent } from 'vue';
 import useMyIncidences from './MyIncidences';
 import IncidenceListItem from '../../components/incidences/IncidenceListItem.vue';
+import ConfirmModal from '../../components/common/ConfirmModal.vue'; // Importamos el modal
 
 export default defineComponent({
   name: 'MyIncidencesView',
-  components: { IncidenceListItem },
+  components: { IncidenceListItem, ConfirmModal }, // Lo registramos
   setup() {
     return { ...useMyIncidences() };
   }
@@ -15,7 +16,7 @@ export default defineComponent({
 <template>
   <div class="space-y-6 max-w-4xl mx-auto">
     
-    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 text-left">
       <div>
         <h1 class="text-2xl font-bold text-cercapp-navy">Soporte y Ayuda</h1>
         <p class="text-gray-500 mt-1">Gestiona tus consultas o reporta problemas técnicos.</p>
@@ -26,9 +27,9 @@ export default defineComponent({
       </router-link>
     </div>
 
-    <div class="bg-white p-4 rounded-xl shadow-sm border border-cercapp-light flex items-center gap-4">
+    <div class="bg-white p-4 rounded-xl shadow-sm border border-cercapp-light flex items-center gap-4 text-left">
       <label class="text-sm font-bold text-cercapp-navy shrink-0">Mostrar:</label>
-      <select v-model="currentFilter" class="bg-gray-50 border border-gray-200 text-gray-700 text-sm rounded-lg focus:ring-cercapp-gold focus:border-cercapp-gold block w-full sm:w-auto p-2 outline-none">
+      <select v-model="currentFilter" class="bg-gray-50 border border-gray-200 text-gray-700 text-sm rounded-lg focus:ring-cercapp-gold focus:border-cercapp-gold block w-full sm:w-auto p-2 outline-none font-medium">
         <option value="ACTIVE">Abiertos (Pendientes y En proceso)</option>
         <option value="ALL">Historial completo</option>
         <option value="RESOLVED">Solo Resueltos</option>
@@ -40,7 +41,7 @@ export default defineComponent({
       <span class="animate-spin h-8 w-8 border-4 border-cercapp-navy border-t-transparent rounded-full"></span>
     </div>
     
-    <div v-else-if="errorMessage" class="bg-red-50 text-red-600 p-4 rounded-xl border border-red-100">
+    <div v-else-if="errorMessage" class="bg-red-50 text-red-600 p-4 rounded-xl border border-red-100 text-left">
       {{ errorMessage }}
     </div>
 
@@ -52,15 +53,28 @@ export default defineComponent({
       <p class="text-gray-500 mt-1 max-w-sm mx-auto">No tienes consultas activas en esta categoría.</p>
     </div>
 
-    <div v-else class="bg-white rounded-2xl shadow-sm border border-cercapp-light overflow-hidden p-4 space-y-3">
+    <div v-else class="bg-white rounded-2xl shadow-sm border border-cercapp-light overflow-hidden p-4 space-y-3 text-left">
       <IncidenceListItem v-for="incidence in filteredIncidences" :key="incidence.id" :incidence="incidence">
         <template #actions v-if="incidence.status === 'PENDING'">
-          <button @click="cancelIncidence(incidence.id)" class="px-3 py-1.5 text-xs font-semibold text-red-600 bg-red-50 hover:bg-red-100 border border-red-200 rounded-lg transition-colors">
+          <button 
+            @click="confirmCancelIncidence(incidence.id)" 
+            class="px-3 py-1.5 text-xs font-bold text-red-600 bg-red-50 hover:bg-red-100 border border-red-200 rounded-lg transition-colors shadow-sm"
+          >
             Cancelar Ticket
           </button>
         </template>
       </IncidenceListItem>
     </div>
+
+    <ConfirmModal 
+      :show="modal.show" 
+      :title="modal.title" 
+      :message="modal.message" 
+      :type="modal.type"
+      :isLoading="isActionLoading"
+      @confirm="executeCancelIncidence"
+      @close="modal.show = false"
+    />
 
   </div>
 </template>
