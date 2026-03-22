@@ -3,19 +3,19 @@ import { useRouter } from 'vue-router';
 import { AuthService } from '../../api/services/auth.service';
 import type { components } from '../../api/v1/schema';
 
-// Importamos el tipo exacto para estar blindados
 type UserCreate = components["schemas"]["UserCreate"];
 type DocumentType = components["schemas"]["DocumentType"];
 
 export function useRegisterUser() {
   const router = useRouter();
 
-  // Estados de la UI
+  // ESTADO DEL FLUJO: Formulario -> KYC
+  const currentStep = ref<'FORM' | 'KYC'>('FORM');
+  
   const isLoading = ref(false);
   const errorMessage = ref('');
   const successMessage = ref('');
 
-  // Formulario reactivo ampliado para KYC Riguroso
   const form = reactive({
     first_name: '',
     middle_name: '',
@@ -26,13 +26,13 @@ export function useRegisterUser() {
     document_number: '',
     phone_number: '',
     email: '',
-    nationality: '', // Agregado
-    country_residence: '', // Agregado
+    nationality: '', 
+    country_residence: '', 
     password: ''
   });
 
-  const submitRegister = async () => {
-    // Validación básica rápida (Actualizada con KYC)
+  // PASO 1: Validamos el formulario y avanzamos al KYC
+  const validateAndProceed = () => {
     if (!form.first_name || !form.last_name || !form.email || !form.password || !form.document_number || !form.birth_date || !form.nationality || !form.country_residence) {
       errorMessage.value = 'Por favor, completa todos los campos obligatorios del perfil.';
       return;
@@ -43,12 +43,18 @@ export function useRegisterUser() {
       return;
     }
 
+    // Si todo está correcto, ocultamos el formulario y mostramos el KYC
+    errorMessage.value = '';
+    currentStep.value = 'KYC';
+  };
+
+  // PASO 2: Envío final a la API (Recibe el estatus dinámico desde el componente KYC)
+  const submitRegister = async (finalStatus: 'ACTIVE' | 'PENDING_KYC') => {
     isLoading.value = true;
     errorMessage.value = '';
     successMessage.value = '';
 
     try {
-      // Construimos el payload tipado, omitiendo strings vacíos en campos opcionales
       const payload: UserCreate = {
         first_name: form.first_name,
         middle_name: form.middle_name || undefined,
@@ -63,21 +69,23 @@ export function useRegisterUser() {
         country_residence: form.country_residence,
         password: form.password,
         user_type: 'USER',
-        status: 'ACTIVE'
+        status: finalStatus // 'ACTIVE' si pasó el KYC, 'PENDING_KYC' si falló o lo omitió
       };
 
       await AuthService.registerUser(payload);
       
-      successMessage.value = '¡Registro exitoso! Redirigiendo al inicio de sesión...';
+      successMessage.value = finalStatus === 'ACTIVE' 
+        ? '¡Registro y verificación biométrica exitosos! Redirigiendo...'
+        : 'Perfil creado. Tu verificación biométrica quedó pendiente.';
       
-      // Esperamos 2 segundos para que el usuario lea el mensaje y lo enviamos al login
       setTimeout(() => {
         router.push({ name: 'Login' });
-      }, 2000);
+      }, 2500);
 
     } catch (error: any) {
       console.error("Error en registro:", error);
-      errorMessage.value = error?.data?.detail?.[0]?.msg || 'Ocurrió un error al registrar el usuario. Revisa los datos ingresados.';
+      errorMessage.value = error?.data?.detail?.[0]?.msg || 'Ocurrió un error al registrar el usuario en el servidor.';
+      currentStep.value = 'FORM'; // Lo devolvemos al formulario por si hubo error de API (ej. Email duplicado)
     } finally {
       isLoading.value = false;
     }
@@ -85,9 +93,11 @@ export function useRegisterUser() {
 
   return {
     form,
+    currentStep,
     isLoading,
     errorMessage,
     successMessage,
+    validateAndProceed,
     submitRegister
   };
 }
