@@ -1,8 +1,7 @@
 <script setup lang="ts">
 import { useAuthStore } from '../../store/auth.store';
 import { useRouter } from 'vue-router';
-// Importamos el asset de la imagen para que Vite la procese
-import logoSidebar from '../../assets/img/logo_dorado.png';
+import { AppAssets } from '../../utils/assets';
 
 defineProps<{ isOpen: boolean }>();
 const emit = defineEmits(['close-sidebar']);
@@ -31,7 +30,7 @@ const handleLogout = () => {
   >
     
     <div class="h-16 flex items-center justify-center border-b border-gray-700/50 shrink-0 px-6 py-2">
-      <img :src="logoSidebar" alt="Cercapp Logo" class="h-full w-auto object-contain drop-shadow-md" />
+      <img :src="AppAssets.logoDorado" alt="Cercapp Logo" class="h-full w-auto object-contain drop-shadow-md" />
     </div>
     <nav class="flex-1 px-4 py-6 space-y-1 overflow-y-auto custom-scrollbar">
       
