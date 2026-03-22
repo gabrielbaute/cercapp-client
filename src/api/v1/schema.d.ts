@@ -506,6 +506,92 @@ export interface paths {
         patch: operations["block_user_plan_api_v1_plans__plan_id__block_patch"];
         trace?: never;
     };
+    "/api/v1/interests/plan/{plan_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Plan Interests
+         * @description Obtiene el historial completo de intereses devengados de un plan de inversión específico.
+         *     Solo accesible por el dueño del plan o un Administrador.
+         */
+        get: operations["get_plan_interests_api_v1_interests_plan__plan_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/interests/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List All Interests
+         * @description Lista todos los registros de intereses generados en la plataforma.
+         *     (Solo Administradores).
+         */
+        get: operations["list_all_interests_api_v1_interests__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/interests/{record_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /**
+         * Update Interest Record
+         * @description Modifica manualmente un registro de interés contable.
+         *     Dispara una notificación de auditoría al equipo de administradores.
+         *     (Solo Administradores).
+         */
+        patch: operations["update_interest_record_api_v1_interests__record_id__patch"];
+        trace?: never;
+    };
+    "/api/v1/interests/calculate/manual": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Force Monthly Calculation
+         * @description Fuerza el cálculo manual de intereses para un mes y año específicos.
+         *     Ideal como respaldo si la tarea programada falla.
+         *     (Solo Administradores).
+         */
+        post: operations["force_monthly_calculation_api_v1_interests_calculate_manual_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/payments/users/me": {
         parameters: {
             query?: never;
@@ -1325,6 +1411,181 @@ export interface components {
          * @enum {string}
          */
         IncidenceStatus: "PENDING" | "IN_PROGRESS" | "RESOLVED" | "CANCELED";
+        /** InterestAdminListResponse */
+        InterestAdminListResponse: {
+            /**
+             * Count
+             * @default 0
+             */
+            count: number;
+            /**
+             * Interests
+             * @default []
+             */
+            interests: components["schemas"]["InterestAdminResponse"][];
+        };
+        /** InterestAdminResponse */
+        InterestAdminResponse: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /**
+             * User Id
+             * Format: uuid
+             */
+            user_id: string;
+            /**
+             * Plan Id
+             * Format: uuid
+             */
+            plan_id: string;
+            /** Periodo Mes */
+            periodo_mes: number;
+            /** Periodo Anio */
+            periodo_anio: number;
+            /** Capital Social Base */
+            capital_social_base: string;
+            /** Tasa Aplicada Anual */
+            tasa_aplicada_anual: string;
+            /** Interes Previo */
+            interes_previo: string;
+            /** Interes Periodo */
+            interes_periodo: string;
+            /** Cantidad Pagos */
+            cantidad_pagos: number;
+            /** Ids Pagos */
+            ids_pagos?: string[];
+            /** Monto Total Pagos */
+            monto_total_pagos: string;
+            /** Monto Capitalizado */
+            monto_capitalizado?: string | null;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at: string;
+            /** User Email */
+            user_email?: string | null;
+            /** User Document Number */
+            user_document_number?: string | null;
+            /** User First Name */
+            user_first_name?: string | null;
+            /** User Last Name */
+            user_last_name?: string | null;
+            /** Plan Name */
+            plan_name?: string | null;
+        };
+        /** InterestListResponse */
+        InterestListResponse: {
+            /**
+             * Count
+             * @default 0
+             */
+            count: number;
+            /**
+             * Interests
+             * @default []
+             */
+            interests: components["schemas"]["InterestResponse"][];
+        };
+        /**
+         * InterestResponse
+         * @description Registro de intereses generados en un plan de inversión.
+         *
+         *     Args:
+         *         id (UUID): Identificador único del registro.
+         *         user_id (UUID): Identificador único del usuario.
+         *         plan_id (UUID): Identificador único del plan de inversión.
+         *         periodo_mes (int): Mes del periodo.
+         *         periodo_anio (int): Año del periodo.
+         *         capital_social_base (Decimal): Capital social base.
+         *         tasa_aplicada_anual (Decimal): Tasa aplicada anualmente.
+         *         interes_previo (Decimal): Intereses previos generados.
+         *         interes_periodo (Decimal): Interés generado para el periodo.
+         *         cantidad_pagos (int): Cantidad de pagos.
+         *         ids_pagos (List[str]): Lista de identificadores de pagos.
+         *         monto_total_pagos (Decimal): Monto total de los pagos.
+         *         monto_capitalizado (Optional[Decimal]): Monto capitalizado.
+         *         created_at (datetime): Fecha y hora de creación.
+         *         updated_at (datetime): Fecha y hora de actualización.
+         */
+        InterestResponse: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /**
+             * User Id
+             * Format: uuid
+             */
+            user_id: string;
+            /**
+             * Plan Id
+             * Format: uuid
+             */
+            plan_id: string;
+            /** Periodo Mes */
+            periodo_mes: number;
+            /** Periodo Anio */
+            periodo_anio: number;
+            /** Capital Social Base */
+            capital_social_base: string;
+            /** Tasa Aplicada Anual */
+            tasa_aplicada_anual: string;
+            /** Interes Previo */
+            interes_previo: string;
+            /** Interes Periodo */
+            interes_periodo: string;
+            /** Cantidad Pagos */
+            cantidad_pagos: number;
+            /** Ids Pagos */
+            ids_pagos?: string[];
+            /** Monto Total Pagos */
+            monto_total_pagos: string;
+            /** Monto Capitalizado */
+            monto_capitalizado?: string | null;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at: string;
+        };
+        /** InterestUpdate */
+        InterestUpdate: {
+            /** Periodo Mes */
+            periodo_mes?: number | null;
+            /** Periodo Anio */
+            periodo_anio?: number | null;
+            /** Capital Social Base */
+            capital_social_base?: number | string | null;
+            /** Tasa Aplicada Anual */
+            tasa_aplicada_anual?: number | string | null;
+            /** Interes Previo */
+            interes_previo?: number | string | null;
+            /** Interes Periodo */
+            interes_periodo?: number | string | null;
+            /** Cantidad Pagos */
+            cantidad_pagos?: number | null;
+            /** Ids Pagos */
+            ids_pagos?: string[] | null;
+            /** Monto Total Pagos */
+            monto_total_pagos?: number | string | null;
+            /** Monto Capitalizado */
+            monto_capitalizado?: number | string | null;
+        };
         /** InvestmentPlanAdminListResponse */
         InvestmentPlanAdminListResponse: {
             /**
@@ -1537,6 +1798,8 @@ export interface components {
             created_at: string;
             /** Processed At */
             processed_at?: string | null;
+            /** Effective Date */
+            effective_date?: string | null;
             /** Updated At */
             updated_at?: string | null;
             /** User Email */
@@ -1593,6 +1856,8 @@ export interface components {
             created_at: string;
             /** Processed At */
             processed_at?: string | null;
+            /** Effective Date */
+            effective_date?: string | null;
             /** Updated At */
             updated_at?: string | null;
             /** Company Name */
@@ -1667,6 +1932,8 @@ export interface components {
             created_at: string;
             /** Processed At */
             processed_at?: string | null;
+            /** Effective Date */
+            effective_date?: string | null;
             /** Updated At */
             updated_at?: string | null;
         };
@@ -1751,6 +2018,8 @@ export interface components {
             created_at: string;
             /** Processed At */
             processed_at?: string | null;
+            /** Effective Date */
+            effective_date?: string | null;
             /** Updated At */
             updated_at?: string | null;
         };
@@ -1758,7 +2027,7 @@ export interface components {
          * PaymentStatus
          * @enum {string}
          */
-        PaymentStatus: "PENDING" | "COMPLETED" | "REJECTED" | "REFUNDED" | "CANCELLED";
+        PaymentStatus: "PENDING" | "COMPLETED" | "REJECTED" | "REFUNDED" | "CANCELED";
         /** PaymentUpdate */
         PaymentUpdate: {
             /** Divisa Amount */
@@ -1767,10 +2036,18 @@ export interface components {
             ves_amount?: number | string | null;
             /** Payment Date */
             payment_date?: string | null;
+            /** Effective Date */
+            effective_date?: string | null;
             payment_method?: components["schemas"]["PaymentMethod"] | null;
             /** Transaction Id */
             transaction_id?: string | null;
             status?: components["schemas"]["PaymentStatus"] | null;
+            /**
+             * Updated At
+             * Format: date-time
+             * @default 2026-03-21T16:50:15.803442
+             */
+            updated_at: string;
         };
         /**
          * PaymentsPeriod
@@ -3051,6 +3328,146 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["InvestmentPlanResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_plan_interests_api_v1_interests_plan__plan_id__get: {
+        parameters: {
+            query?: {
+                token?: string | null;
+            };
+            header?: never;
+            path: {
+                plan_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["InterestListResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_all_interests_api_v1_interests__get: {
+        parameters: {
+            query?: {
+                /** @description Número de registros a omitir */
+                skip?: number;
+                /** @description Límite de registros a devolver */
+                limit?: number;
+                token?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["InterestAdminListResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    update_interest_record_api_v1_interests__record_id__patch: {
+        parameters: {
+            query?: {
+                token?: string | null;
+            };
+            header?: never;
+            path: {
+                record_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["InterestUpdate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["InterestResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    force_monthly_calculation_api_v1_interests_calculate_manual_post: {
+        parameters: {
+            query: {
+                /** @description Año a calcular (Ej. 2026) */
+                year: number;
+                /** @description Mes a calcular (1-12) */
+                month: number;
+                token?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
                 };
             };
             /** @description Validation Error */
