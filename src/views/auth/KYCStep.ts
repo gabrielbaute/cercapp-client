@@ -41,7 +41,11 @@ export default function useKYCStep(onSuccess: () => void) {
     
     // Optimizamos tiempo: empezamos a cargar la red neuronal en segundo plano 
     // mientras el usuario se acomoda frente a la cámara.
-    loadModels();
+    // Atrapamos el error si no puede descargar face-api.js o los modelos
+    loadModels().catch(err => {
+      errorMessage.value = "No se pudieron descargar los modelos de Inteligencia Artificial. Revisa tu conexión y vuelve a intentarlo.";
+      console.error("Error al cargar modelos:", err);
+    });
     startCamera();
   };
 
