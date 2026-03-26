@@ -17,13 +17,12 @@ export function useFaceMatch() {
   const loadFaceApiScript = (): Promise<void> => {
     return new Promise((resolve, reject) => {
       // Si ya está cargado previamente, resolvemos de inmediato
-      if (window.faceapi) {
+      if ((window as any).faceapi) {
         resolve();
         return;
       }
       
       const script = document.createElement('script');
-      // Asegúrate de que en tu carpeta public/ exista la subcarpeta js/ con el archivo
       script.src = '/js/face-api.js'; 
       script.async = true;
       script.onload = () => resolve();
@@ -41,10 +40,10 @@ export function useFaceMatch() {
     try {
       await loadFaceApiScript();
       
-      // Esta ruta apunta a tu carpeta public/models/
+      // Esta ruta apunta a la carpeta public/models/
       const MODEL_URL = '/models'; 
 
-      // Usamos Promise.all para cargar las 3 redes neuronales en paralelo y ahorrar tiempo
+      // Promise.all cargas las 3 redes neuronales en paralelo y ahorra tiempo
       await Promise.all([
         window.faceapi.nets.ssdMobilenetv1.loadFromUri(MODEL_URL),
         window.faceapi.nets.faceLandmark68Net.loadFromUri(MODEL_URL),
@@ -55,6 +54,7 @@ export function useFaceMatch() {
     } catch (e: any) {
       console.error("Error inicializando biometría:", e);
       error.value = "Error al inicializar el motor de reconocimiento facial.";
+      throw e; // CRÍTICO: Lanzamos el error para que la interfaz se entere
     } finally {
       isModelLoading.value = false;
     }
